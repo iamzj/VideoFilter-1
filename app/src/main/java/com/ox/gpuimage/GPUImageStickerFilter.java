@@ -3,6 +3,8 @@ package com.ox.gpuimage;
 import android.graphics.Bitmap;
 import android.opengl.GLES20;
 
+import com.ox.gpuimage.util.TextureRotationUtil;
+
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
@@ -20,6 +22,7 @@ public class GPUImageStickerFilter extends GPUImageFilter {
     private int mBitmapTextureId = OpenGlUtils.NO_TEXTURE;
     private float[] mBitmapVertexCoord;
     private FloatBuffer mBitmapVertexBuffer;
+    private FloatBuffer mBitmapTextureBuffer;
 
     private boolean mIsDrawBackground;
 
@@ -36,12 +39,15 @@ public class GPUImageStickerFilter extends GPUImageFilter {
         if (mBitmapTextureId == OpenGlUtils.NO_TEXTURE) {
             mBitmapTextureId = OpenGlUtils.loadTexture(mSrcBitmap, mBitmapTextureId, true);
         }
-        mBitmapVertexCoord = new float[]{
-                -0.5f, -0.5f,
-                0.5f, -0.5f,
-                -0.5f, 0.5f,
-                0.5f, 0.5f,
-        };
+        if (mBitmapVertexCoord == null) {
+            mBitmapVertexCoord = new float[]{
+                    -0.5f, -0.5f,
+                    0.5f, -0.5f,
+                    -0.5f, 0.5f,
+                    0.5f, 0.5f,
+            };
+        }
+
         mBitmapVertexBuffer = ByteBuffer.allocateDirect(mBitmapVertexCoord.length * 4)
                 .order(ByteOrder.nativeOrder())
                 .asFloatBuffer();
@@ -63,6 +69,35 @@ public class GPUImageStickerFilter extends GPUImageFilter {
         }
     }
 
+    @Override
+    public void onRotationChanged() {
+        super.onRotationChanged();
+        float[] flipTexture = null;
+        switch (mRotation) {
+            case ROTATION_90:
+                flipTexture = TextureRotationUtil.getRotation(Rotation.ROTATION_90, true, true);
+                mBitmapTextureBuffer = ByteBuffer.allocateDirect(flipTexture.length * 4)
+                        .order(ByteOrder.nativeOrder())
+                        .asFloatBuffer();
+                mBitmapTextureBuffer.put(flipTexture);
+                break;
+            case ROTATION_180:
+                flipTexture = TextureRotationUtil.getRotation(Rotation.ROTATION_180, true, true);
+                mBitmapTextureBuffer = ByteBuffer.allocateDirect(flipTexture.length * 4)
+                        .order(ByteOrder.nativeOrder())
+                        .asFloatBuffer();
+                mBitmapTextureBuffer.put(flipTexture);
+                break;
+            case ROTATION_270:
+                flipTexture = TextureRotationUtil.getRotation(Rotation.ROTATION_270, true, true);
+                mBitmapTextureBuffer = ByteBuffer.allocateDirect(flipTexture.length * 4)
+                        .order(ByteOrder.nativeOrder())
+                        .asFloatBuffer();
+                mBitmapTextureBuffer.put(flipTexture);
+                break;
+        }
+    }
+
     public void onDraw(boolean drawBackground, int textureId, FloatBuffer cubeBuffer, FloatBuffer textureBuffer) {
         mIsDrawBackground = drawBackground;
         super.onDraw(textureId, cubeBuffer, textureBuffer);
@@ -81,6 +116,13 @@ public class GPUImageStickerFilter extends GPUImageFilter {
         GLES20.glVertexAttribPointer(mGLAttribPosition, 2, GLES20.GL_FLOAT, false, 0, mBitmapVertexBuffer);
         GLES20.glEnableVertexAttribArray(mGLAttribPosition);
 
+        if (mBitmapTextureBuffer != null) {
+            mBitmapTextureBuffer.position(0);
+            GLES20.glVertexAttribPointer(mGLAttribTextureCoordinate, 2, GLES20.GL_FLOAT, false, 0,
+                    mBitmapTextureBuffer);
+            GLES20.glEnableVertexAttribArray(mGLAttribTextureCoordinate);
+        }
+
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, mBitmapTextureId);
         GLES20.glUniform1i(mGLUniformTexture, 0);
@@ -97,6 +139,15 @@ public class GPUImageStickerFilter extends GPUImageFilter {
 
     public void setSrcBitmap(Bitmap bitmap) {
         mSrcBitmap = bitmap;
+    }
+
+    public void setSizeRatio(float widthRatio, float heightRatio) {
+        mBitmapVertexCoord = new float[]{
+                -widthRatio, -heightRatio,
+                widthRatio, -heightRatio,
+                -widthRatio, heightRatio,
+                widthRatio, heightRatio,
+        };
     }
 
 }

@@ -33,6 +33,7 @@ import com.ox.gpuimage.GPUImageFilterGroup;
 import com.ox.gpuimage.GPUImageOESFilter;
 import com.ox.gpuimage.GPUImageScaleFilter;
 import com.ox.gpuimage.GPUImageStickerFilterGroup;
+import com.ox.gpuimage.Rotation;
 import com.ox.gpuimage.util.LocationUtil;
 
 import java.io.File;
@@ -303,6 +304,22 @@ public class MainActivity extends Activity implements View.OnClickListener {
         GPUImageFilterGroup filterGroup = new GPUImageFilterGroup();
         filterGroup.addFilter(new GPUImageOESFilter());
         GPUImageStickerFilterGroup stickerFilterGroup = new GPUImageStickerFilterGroup(true);
+        if (mVideoDegree == 0) {
+            stickerFilterGroup.setSizeRatio(DeviceUtils.dip2px(100) * 1f / mVideoWidth,
+                    DeviceUtils.dip2px(100) * 1f / mVideoHeight);
+        } else if (mVideoDegree == 90) {
+            stickerFilterGroup.setRotation(Rotation.ROTATION_90);
+            stickerFilterGroup.setSizeRatio(DeviceUtils.dip2px(100) * 1f / mVideoHeight,
+                    DeviceUtils.dip2px(100) * 1f / mVideoWidth);
+        } else if (mVideoDegree == 180) {
+            stickerFilterGroup.setRotation(Rotation.ROTATION_180);
+            stickerFilterGroup.setSizeRatio(DeviceUtils.dip2px(100) * 1f / mVideoWidth,
+                    DeviceUtils.dip2px(100) * 1f / mVideoHeight);
+        } else if (mVideoDegree == 270) {
+            stickerFilterGroup.setRotation(Rotation.ROTATION_270);
+            stickerFilterGroup.setSizeRatio(DeviceUtils.dip2px(100) * 1f / mVideoHeight,
+                    DeviceUtils.dip2px(100) * 1f / mVideoWidth);
+        }
         filterGroup.addFilter(stickerFilterGroup);
         stickerFilterGroup.setImage(img);
 
@@ -402,7 +419,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
     }
 
     private void retrievMetaData() {
-        mVideoPath = Environment.getExternalStorageDirectory() + File.separator + "TestResource" + File.separator + "video.mp4";
+        mVideoPath = Environment.getExternalStorageDirectory() + File.separator + "TestResource" + File.separator + "video_portrait.mp4";
         MediaMetadataRetriever retriver = new MediaMetadataRetriever();
         retriver.setDataSource(mVideoPath);
         String degreesString = retriver.extractMetadata(

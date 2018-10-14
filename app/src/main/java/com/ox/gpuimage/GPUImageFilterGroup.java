@@ -242,12 +242,12 @@ public class GPUImageFilterGroup extends GPUImageFilter {
                 if (i == 0) {
                     filter.onDraw(previousTexture, cubeBuffer, textureBuffer);
                 } else {
-                    if (filter instanceof GPUImageStickerFilter) {
+                    if (i == 1 && filter instanceof GPUImageStickerFilter) {
                         boolean drawBackground = true;
                         ((GPUImageStickerFilter)filter).onDraw(drawBackground, previousTexture,
                                 mGLCubeBuffer, mGLTextureFlipBuffer);
                         ((GPUImageStickerFilter)filter).onDraw(!drawBackground, previousTexture,
-                                mGLCubeBuffer, mGLTextureFlipBuffer);
+                                mGLCubeBuffer, mGLTextureBuffer);
                     } else {
                         filter.onDraw(previousTexture, mGLCubeBuffer, mGLTextureFlipBuffer);
                     }

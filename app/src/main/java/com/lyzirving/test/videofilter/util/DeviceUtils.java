@@ -36,4 +36,39 @@ public class DeviceUtils {
         return getScreenWidthPx(ComponentContext.getContext());
     }
 
+    public static int dip2px(float dpValue) {
+        return dip2px(ComponentContext.getContext(), dpValue);
+    }
+
+    public static int px2dip(float pxValue) {
+        return px2dip(ComponentContext.getContext(), pxValue);
+    }
+
+    public static float sp2pxF(float spValue) {
+        return sp2pxF(ComponentContext.getContext(), spValue);
+    }
+
+    private static float sp2pxF(Context context, float spValue) {
+        float scale = getScreenScaleDensity(context);
+        return spValue * scale + 0.5F;
+    }
+
+    private static int px2dip(Context context, float pxValue) {
+        float scale = getScreenDensity(context);
+        return (int)(pxValue / scale + 0.5F);
+    }
+
+    private static int dip2px(Context context, float dpValue) {
+        float scale = getScreenDensity(context);
+        return (int)(dpValue * scale + 0.5F);
+    }
+
+    public static float getScreenDensity(Context context) {
+        return getDisplayMetrics(context).density;
+    }
+
+    public static float getScreenScaleDensity(Context context) {
+        return getDisplayMetrics(context).scaledDensity;
+    }
+
 }
