@@ -239,20 +239,15 @@ public class GPUImageFilterGroup extends GPUImageFilter {
                     GLES20.glClearColor(0, 0, 0, 0);
                 }
 
-                if (i > 1 &&
-                        (filter instanceof GPUImageSelectiveBlurFilter
-                                || filter instanceof GPUImageTiltShiftSubFilter)) {
-                    GPUImageTwoInputFilter selectiveBlurFilter = (GPUImageTwoInputFilter) filter;
-                    if (i == 2) {
-                        selectiveBlurFilter.setTexture2(previousTexture, Rotation.NORMAL, false, false);
-                        selectiveBlurFilter.onDraw(textureId, cubeBuffer, textureBuffer);
-                    } else {
-                        selectiveBlurFilter.setTexture2(previousTexture, Rotation.NORMAL, false, true);
-                        selectiveBlurFilter.onDraw(mFrameBufferTextures[i - 3], mGLCubeBuffer, mGLTextureFlipBuffer);
-                    }
+                if (i == 0) {
+                    filter.onDraw(previousTexture, cubeBuffer, textureBuffer);
                 } else {
-                    if (i == 0) {
-                        filter.onDraw(previousTexture, cubeBuffer, textureBuffer);
+                    if (filter instanceof GPUImageStickerFilter) {
+                        boolean drawBackground = true;
+                        ((GPUImageStickerFilter)filter).onDraw(drawBackground, previousTexture,
+                                mGLCubeBuffer, mGLTextureFlipBuffer);
+                        ((GPUImageStickerFilter)filter).onDraw(!drawBackground, previousTexture,
+                                mGLCubeBuffer, mGLTextureFlipBuffer);
                     } else {
                         filter.onDraw(previousTexture, mGLCubeBuffer, mGLTextureFlipBuffer);
                     }

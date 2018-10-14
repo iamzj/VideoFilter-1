@@ -10,6 +10,13 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <ImageView
+            android:id="@+id/view_sticker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone"/>
+
         <com.airbnb.lottie.LottieAnimationView
             android:id="@+id/view_animation"
             android:layout_width="56dp"
@@ -34,14 +41,15 @@
         android:paddingBottom="2dp"
         android:paddingTop="2dp"
         android:layout_marginTop="20dp"
-        android:layout_width="70dp"
-        android:layout_height="wrap_content" />
+        android:layout_width="@dimen/text_width"
+        android:layout_height="@dimen/text_height" />
 
     <LinearLayout
         android:id="@+id/btns_row1"
         android:layout_below="@id/btn_play"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="10dp"
+        android:layout_marginLeft="10dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
@@ -55,9 +63,8 @@
             android:paddingBottom="2dp"
             android:paddingTop="2dp"
             android:layout_gravity="center_vertical"
-            android:layout_marginLeft="10dp"
-            android:layout_width="80dp"
-            android:layout_height="wrap_content"/>
+            android:layout_width="@dimen/text_width"
+            android:layout_height="@dimen/text_height"/>
 
         <TextView
             android:id="@+id/btn_11"
@@ -70,8 +77,8 @@
             android:paddingTop="2dp"
             android:layout_gravity="center_vertical"
             android:layout_marginLeft="10dp"
-            android:layout_width="80dp"
-            android:layout_height="wrap_content"/>
+            android:layout_width="@dimen/text_width"
+            android:layout_height="@dimen/text_height"/>
 
         <TextView
             android:id="@+id/btn_45"
@@ -84,8 +91,8 @@
             android:paddingTop="2dp"
             android:layout_gravity="center_vertical"
             android:layout_marginLeft="10dp"
-            android:layout_width="80dp"
-            android:layout_height="wrap_content"/>
+            android:layout_width="@dimen/text_width"
+            android:layout_height="@dimen/text_height"/>
 
         <TextView
             android:id="@+id/btn_169"
@@ -98,8 +105,8 @@
             android:paddingTop="2dp"
             android:layout_gravity="center_vertical"
             android:layout_marginLeft="10dp"
-            android:layout_width="80dp"
-            android:layout_height="wrap_content"/>
+            android:layout_width="@dimen/text_width"
+            android:layout_height="@dimen/text_height"/>
 
     </LinearLayout>
 
@@ -107,6 +114,7 @@
         android:id="@+id/btns_row2"
         android:orientation="horizontal"
         android:layout_below="@id/btns_row1"
+        android:layout_alignLeft="@id/btns_row1"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="10dp"
         android:layout_width="match_parent"
@@ -122,9 +130,44 @@
             android:paddingBottom="2dp"
             android:paddingTop="2dp"
             android:layout_gravity="center_vertical"
+            android:layout_width="@dimen/text_width"
+            android:layout_height="@dimen/text_height"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/btns_row3"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/btns_row2"
+        android:layout_below="@id/btns_row2"
+        android:layout_marginTop="10dp">
+
+        <TextView
+            android:id="@+id/btn_sticker"
+            android:text="add sticker"
+            android:textSize="13sp"
+            android:gravity="center"
+            android:textColor="#ffffff"
+            android:background="@drawable/tv_bg"
+            android:paddingBottom="2dp"
+            android:paddingTop="2dp"
+            android:layout_width="@dimen/text_width"
+            android:layout_height="@dimen/text_height"/>
+
+        <TextView
+            android:id="@+id/btn_sticker_video"
+            android:text="sticker video"
+            android:textSize="11sp"
+            android:gravity="center"
+            android:textColor="#ffffff"
+            android:background="@drawable/tv_bg"
+            android:paddingBottom="2dp"
+            android:paddingTop="2dp"
             android:layout_marginLeft="10dp"
-            android:layout_width="80dp"
-            android:layout_height="wrap_content"/>
+            android:layout_width="@dimen/text_width"
+            android:layout_height="@dimen/text_height" />
 
     </LinearLayout>
 

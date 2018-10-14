@@ -3,6 +3,8 @@ package com.lyzirving.test.videofilter;
 import android.Manifest;
 import android.app.Activity;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.SurfaceTexture;
 import android.media.AudioManager;
 import android.media.MediaMetadataRetriever;
@@ -19,6 +21,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -29,6 +32,7 @@ import com.ox.av.edit.VideoFilterDevice;
 import com.ox.gpuimage.GPUImageFilterGroup;
 import com.ox.gpuimage.GPUImageOESFilter;
 import com.ox.gpuimage.GPUImageScaleFilter;
+import com.ox.gpuimage.GPUImageStickerFilterGroup;
 import com.ox.gpuimage.util.LocationUtil;
 
 import java.io.File;
@@ -44,6 +48,9 @@ public class MainActivity extends Activity implements View.OnClickListener {
     private TextView mBtn45;
     private TextView mBtn169;
     private TextView mBtn916;
+    private TextView mBtnSticker;
+    private TextView mBtnStickerVideo;
+    private ImageView mViewSticker;
     private LottieAnimationView mViewAnimation;
 
     private String mVideoPath;
@@ -201,6 +208,25 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 mViewAnimation.playAnimation();
                 saveVideoAtSpecificRatio(GPUImageScaleFilter.ResizeType.Type.TYPE_9_16);
             }
+        } else if (v == mBtnSticker) {
+            if (mViewSticker.getVisibility() == View.GONE) {
+                mBtnSticker.setText("hide sticker");
+                mViewSticker.setImageResource(R.drawable.sticker1);
+                mViewSticker.setVisibility(View.VISIBLE);
+            } else if (mViewSticker.getVisibility() == View.VISIBLE) {
+                mViewSticker.setVisibility(View.GONE);
+                mBtnSticker.setText("add sticker");
+            }
+        } else if (v == mBtnStickerVideo) {
+            if (mIsPrepare) {
+                if (mMediaPlayer.isPlaying()) {
+                    mMediaPlayer.pause();
+                    mBtnPlay.setText("play");
+                }
+                mViewAnimation.setVisibility(View.VISIBLE);
+                mViewAnimation.playAnimation();
+                saveVideoWithSticker();
+            }
         }
     }
 
@@ -218,6 +244,9 @@ public class MainActivity extends Activity implements View.OnClickListener {
         mBtn45 = findViewById(R.id.btn_45);
         mBtn169 = findViewById(R.id.btn_169);
         mBtn916 = findViewById(R.id.btn_916);
+        mBtnSticker = findViewById(R.id.btn_sticker);
+        mBtnStickerVideo = findViewById(R.id.btn_sticker_video);
+        mViewSticker = findViewById(R.id.view_sticker);
         mViewAnimation = findViewById(R.id.view_animation);
 
         mBtnPlay.setOnClickListener(this);
@@ -226,6 +255,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
         mBtn45.setOnClickListener(this);
         mBtn169.setOnClickListener(this);
         mBtn916.setOnClickListener(this);
+        mBtnSticker.setOnClickListener(this);
+        mBtnStickerVideo.setOnClickListener(this);
     }
 
     private void saveVideoWithFilter(String inputPath, String outputPath, GPUImageFilterGroup filterGroup,
@@ -265,6 +296,31 @@ public class MainActivity extends Activity implements View.OnClickListener {
             mViewAnimation.setVisibility(View.GONE);
             Toast.makeText(this, "error occurs", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void saveVideoWithSticker() {
+        Bitmap img = BitmapFactory.decodeResource(getResources(), R.drawable.sticker1);
+        GPUImageFilterGroup filterGroup = new GPUImageFilterGroup();
+        filterGroup.addFilter(new GPUImageOESFilter());
+        GPUImageStickerFilterGroup stickerFilterGroup = new GPUImageStickerFilterGroup(true);
+        filterGroup.addFilter(stickerFilterGroup);
+        stickerFilterGroup.setImage(img);
+
+        boolean resize = false;
+        String outputPath = Environment.getExternalStorageDirectory() + File.separator + "TestResource" + File.separator + "video_sticker.mp4";
+        saveVideoWithFilter(mVideoPath, outputPath, filterGroup, mVideoWidth, mVideoHeight, mVideoDegree,
+                mBitRate, mLocation, resize);
+    }
+
+    private void saveOriginal() {
+        GPUImageFilterGroup filterGroup = new GPUImageFilterGroup();
+        filterGroup.addFilter(new GPUImageOESFilter());
+
+        boolean resize = false;
+        String outputPath = Environment.getExternalStorageDirectory() + File.separator + "TestResource" + File.separator + "video_original.mp4";
+
+        saveVideoWithFilter(mVideoPath, outputPath, filterGroup, mVideoWidth, mVideoHeight, mVideoDegree,
+                mBitRate, mLocation, resize);
     }
 
     private void saveVideoAtSpecificRatio(GPUImageScaleFilter.ResizeType.Type ratioType) {
@@ -340,24 +396,13 @@ public class MainActivity extends Activity implements View.OnClickListener {
         return result;
     }
 
-    private void saveOriginal() {
-        GPUImageFilterGroup filterGroup = new GPUImageFilterGroup();
-        filterGroup.addFilter(new GPUImageOESFilter());
-
-        boolean resize = false;
-        String outputPath = Environment.getExternalStorageDirectory() + File.separator + "TestResource" + File.separator + "video_original.mp4";
-
-        saveVideoWithFilter(mVideoPath, outputPath, filterGroup, mVideoWidth, mVideoHeight, mVideoDegree,
-                mBitRate, mLocation, resize);
-    }
-
     private void showVideo() {
         retrievMetaData();
         addVideoViewAndAdjustSize();
     }
 
     private void retrievMetaData() {
-        mVideoPath = Environment.getExternalStorageDirectory() + File.separator + "TestResource" + File.separator + "video_portrait.mp4";
+        mVideoPath = Environment.getExternalStorageDirectory() + File.separator + "TestResource" + File.separator + "video.mp4";
         MediaMetadataRetriever retriver = new MediaMetadataRetriever();
         retriver.setDataSource(mVideoPath);
         String degreesString = retriver.extractMetadata(
