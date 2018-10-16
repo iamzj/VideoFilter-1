@@ -42,7 +42,7 @@ import java.io.IOException;
 public class MainActivity extends Activity implements View.OnClickListener {
 
     private TextureView mVideoView;
-    private FrameLayout mContainer;
+    private VideoViewContainer mContainer;
     private TextView mBtnPlay;
     private TextView mBtnOriginal;
     private TextView mBtn11;

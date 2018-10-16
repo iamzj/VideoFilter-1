@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
-    <FrameLayout
+    <com.lyzirving.test.videofilter.VideoViewContainer
         android:id="@+id/container"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -27,7 +27,7 @@
             app:lottie_autoPlay="false"
             android:visibility="gone"/>
 
-    </FrameLayout>
+    </com.lyzirving.test.videofilter.VideoViewContainer>
 
     <TextView
         android:id="@+id/btn_play"
