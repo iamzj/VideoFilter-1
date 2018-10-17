@@ -27,7 +27,7 @@ public class VideoViewContainer extends FrameLayout {
     private ImageView mSticker;
     private float mStartX, mStartY;
     private float mShiftX, mShiftY;
-    private float mStickerLeft, mStickerTop;
+    private float mStickerOriginalLeft, mStickerOriginalTop;
     private int mStickerW, mStickerH;
 
     public VideoViewContainer(@NonNull Context context) {
@@ -49,7 +49,8 @@ public class VideoViewContainer extends FrameLayout {
             ViewGroup.LayoutParams lp = getChildAt(0).getLayoutParams();
             int childW = lp.width;
             int childH = lp.height;
-            mRenderRect = new RectF((w - childW) / 2f, (h - childH) / 2f, childW, childH);
+            mRenderRect = new RectF((w - childW) / 2f, (h - childH) / 2f, (w - childW) / 2f + childW,
+                    (h - childH) / 2f + childH);
         } else {
             mRenderRect = new RectF(0, 0, w, h);
         }
@@ -86,27 +87,45 @@ public class VideoViewContainer extends FrameLayout {
             mSticker = getSticker();
             mStickerW = mSticker.getMeasuredWidth();
             mStickerH = mSticker.getMeasuredHeight();
+            mStickerOriginalLeft = mSticker.getLeft();
+            mStickerOriginalTop = mSticker.getTop();
         }
         boolean result = true;
         switch (e.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                mStickerLeft = mSticker.getLeft();
-                mStickerTop = mSticker.getTop();
                 mStartX = e.getX();
                 mStartY = e.getY();
                 break;
             case MotionEvent.ACTION_MOVE:
                 mShiftX += e.getX() - mStartX;
-                mShiftX += e.getY() - mStartY;
+                mShiftY += e.getY() - mStartY;
                 mStartX = e.getX();
                 mStartY = e.getY();
-                mSticker.layout((int) (mStickerLeft + mShiftX), (int) (mStickerTop + mShiftY),
-                        mStickerW, mStickerH);
+                limitTranslation();
+                mSticker.setTranslationX(mShiftX);
+                mSticker.setTranslationY(mShiftY);
                 break;
             case MotionEvent.ACTION_UP:
               break;
         }
         return result;
+    }
+
+    private void limitTranslation() {
+        float currentLeft = mStickerOriginalLeft + mShiftX;
+        float currentTop = mStickerOriginalTop + mShiftY;
+        float currentRight = currentLeft + mStickerW;
+        float currentBottom = currentTop + mStickerH;
+        if (currentLeft < mRenderRect.left) {
+            mShiftX = mRenderRect.left - mStickerOriginalLeft;
+        } else if (currentRight > mRenderRect.right) {
+            mShiftX = mRenderRect.right - mStickerOriginalLeft - mStickerW;
+        }
+        if (currentTop < mRenderRect.top) {
+            mShiftY = mRenderRect.top - mStickerOriginalTop;
+        } else if (currentBottom > mRenderRect.bottom) {
+            mShiftY = mRenderRect.bottom - mShiftY - mStickerH;
+        }
     }
 
     private ImageView getSticker() {
