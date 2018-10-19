@@ -141,12 +141,13 @@ public class GPUImageStickerFilter extends GPUImageFilter {
         mSrcBitmap = bitmap;
     }
 
-    public void setSizeRatio(float widthRatio, float heightRatio) {
+    public void setSizeRatio(float widthRatio, float heightRatio, float xTranslateRatio,
+                             float yTranslateRatio) {
         mBitmapVertexCoord = new float[]{
-                -widthRatio, -heightRatio,
-                widthRatio, -heightRatio,
-                -widthRatio, heightRatio,
-                widthRatio, heightRatio,
+                -widthRatio + xTranslateRatio, -heightRatio + yTranslateRatio,
+                widthRatio + xTranslateRatio, -heightRatio + yTranslateRatio,
+                -widthRatio + xTranslateRatio, heightRatio + yTranslateRatio,
+                widthRatio + xTranslateRatio, heightRatio + yTranslateRatio,
         };
     }
 

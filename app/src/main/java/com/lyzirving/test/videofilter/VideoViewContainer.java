@@ -8,9 +8,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
-import android.view.TextureView;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
@@ -45,15 +43,7 @@ public class VideoViewContainer extends FrameLayout {
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-        if (getChildAt(0) instanceof TextureView) {
-            ViewGroup.LayoutParams lp = getChildAt(0).getLayoutParams();
-            int childW = lp.width;
-            int childH = lp.height;
-            mRenderRect = new RectF((w - childW) / 2f, (h - childH) / 2f, (w - childW) / 2f + childW,
-                    (h - childH) / 2f + childH);
-        } else {
-            mRenderRect = new RectF(0, 0, w, h);
-        }
+        mRenderRect = new RectF(0, 0, w, h);
     }
 
     @Override
@@ -68,6 +58,16 @@ public class VideoViewContainer extends FrameLayout {
             return super.onTouchEvent(event);
         }
         return dealWithSticker(event);
+    }
+
+    public float getXTranslateRatio() {
+        float result = 2f * mShiftX / mRenderRect.width();
+        return result;
+    }
+
+    public float getYTranslateRatio() {
+        float result = 2f * mShiftY / mRenderRect.height();
+        return result;
     }
 
     private boolean hasSticker() {
@@ -116,15 +116,15 @@ public class VideoViewContainer extends FrameLayout {
         float currentTop = mStickerOriginalTop + mShiftY;
         float currentRight = currentLeft + mStickerW;
         float currentBottom = currentTop + mStickerH;
-        if (currentLeft < mRenderRect.left) {
-            mShiftX = mRenderRect.left - mStickerOriginalLeft;
-        } else if (currentRight > mRenderRect.right) {
-            mShiftX = mRenderRect.right - mStickerOriginalLeft - mStickerW;
+        if (currentRight < mRenderRect.left + mStickerW / 2) {
+            mShiftX = -mRenderRect.width() / 2;
+        } else if (currentLeft > mRenderRect.right - mStickerW / 2) {
+            mShiftX = mRenderRect.width() / 2;
         }
-        if (currentTop < mRenderRect.top) {
-            mShiftY = mRenderRect.top - mStickerOriginalTop;
-        } else if (currentBottom > mRenderRect.bottom) {
-            mShiftY = mRenderRect.bottom - mShiftY - mStickerH;
+        if (currentBottom < mRenderRect.top + mStickerH / 2) {
+            mShiftY = -mRenderRect.height() / 2;
+        } else if (currentTop > mRenderRect.bottom - mStickerH / 2) {
+            mShiftY = mRenderRect.height() / 2;
         }
     }
 

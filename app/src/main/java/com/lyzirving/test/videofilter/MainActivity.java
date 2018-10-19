@@ -41,8 +41,12 @@ import java.io.IOException;
 
 public class MainActivity extends Activity implements View.OnClickListener {
 
+    private static final int STICKER_WIDTH = DeviceUtils.dip2px(150);
+    private static final int STICKER_HEIGHT = DeviceUtils.dip2px(150);
+
     private TextureView mVideoView;
-    private VideoViewContainer mContainer;
+    private VideoViewContainer mVideoContainer;
+    private FrameLayout mContainer;
     private TextView mBtnPlay;
     private TextView mBtnOriginal;
     private TextView mBtn11;
@@ -213,6 +217,10 @@ public class MainActivity extends Activity implements View.OnClickListener {
             if (mViewSticker.getVisibility() == View.GONE) {
                 mBtnSticker.setText("hide sticker");
                 mViewSticker.setImageResource(R.drawable.sticker1);
+                ViewGroup.LayoutParams lp = mViewSticker.getLayoutParams();
+                lp.width = STICKER_WIDTH;
+                lp.height = STICKER_HEIGHT;
+                mViewSticker.setLayoutParams(lp);
                 mViewSticker.setVisibility(View.VISIBLE);
             } else if (mViewSticker.getVisibility() == View.VISIBLE) {
                 mViewSticker.setVisibility(View.GONE);
@@ -239,6 +247,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
     private void initView() {
         mContainer = findViewById(R.id.container);
+        mVideoContainer = findViewById(R.id.video_view_container);
         mBtnPlay = findViewById(R.id.btn_play);
         mBtnOriginal = findViewById(R.id.btn_original);
         mBtn11 = findViewById(R.id.btn_11);
@@ -304,21 +313,23 @@ public class MainActivity extends Activity implements View.OnClickListener {
         GPUImageFilterGroup filterGroup = new GPUImageFilterGroup();
         filterGroup.addFilter(new GPUImageOESFilter());
         GPUImageStickerFilterGroup stickerFilterGroup = new GPUImageStickerFilterGroup(true);
+        float xTranslateRatio = mVideoContainer.getXTranslateRatio();
+        float yTranslateRatio = mVideoContainer.getYTranslateRatio();
         if (mVideoDegree == 0) {
-            stickerFilterGroup.setSizeRatio(DeviceUtils.dip2px(100) * 1f / mVideoWidth,
-                    DeviceUtils.dip2px(100) * 1f / mVideoHeight);
+            stickerFilterGroup.setSizeRatio(STICKER_WIDTH * 1f / mVideoWidth,
+                    STICKER_HEIGHT * 1f / mVideoHeight, xTranslateRatio, yTranslateRatio);
         } else if (mVideoDegree == 90) {
             stickerFilterGroup.setRotation(Rotation.ROTATION_90);
-            stickerFilterGroup.setSizeRatio(DeviceUtils.dip2px(100) * 1f / mVideoHeight,
-                    DeviceUtils.dip2px(100) * 1f / mVideoWidth);
+            stickerFilterGroup.setSizeRatio(STICKER_HEIGHT * 1f / mVideoHeight,
+                    STICKER_WIDTH * 1f / mVideoWidth, yTranslateRatio, xTranslateRatio);
         } else if (mVideoDegree == 180) {
             stickerFilterGroup.setRotation(Rotation.ROTATION_180);
-            stickerFilterGroup.setSizeRatio(DeviceUtils.dip2px(100) * 1f / mVideoWidth,
-                    DeviceUtils.dip2px(100) * 1f / mVideoHeight);
+            stickerFilterGroup.setSizeRatio(STICKER_WIDTH * 1f / mVideoWidth,
+                    STICKER_HEIGHT * 1f / mVideoHeight, xTranslateRatio, yTranslateRatio);
         } else if (mVideoDegree == 270) {
             stickerFilterGroup.setRotation(Rotation.ROTATION_270);
-            stickerFilterGroup.setSizeRatio(DeviceUtils.dip2px(100) * 1f / mVideoHeight,
-                    DeviceUtils.dip2px(100) * 1f / mVideoWidth);
+            stickerFilterGroup.setSizeRatio(STICKER_HEIGHT * 1f / mVideoHeight,
+                    STICKER_WIDTH * 1f / mVideoWidth, yTranslateRatio, xTranslateRatio);
         }
         filterGroup.addFilter(stickerFilterGroup);
         stickerFilterGroup.setImage(img);
@@ -458,20 +469,26 @@ public class MainActivity extends Activity implements View.OnClickListener {
         lp.height = containerHeight;
         mContainer.setLayoutParams(lp);
 
+        FrameLayout.LayoutParams videoContainerLp = (FrameLayout.LayoutParams)mVideoContainer.getLayoutParams();
+        float ratio = mVideoWidth * 1f / mVideoHeight;
+        if (ratio >= 1) {
+            videoContainerLp.width = containerWidth;
+            videoContainerLp.height = (int) (containerWidth * 1f / ratio);
+        } else {
+            videoContainerLp.height = containerHeight;
+            videoContainerLp.width = (int) (containerHeight * ratio);
+        }
+        mVideoContainer.setLayoutParams(videoContainerLp);
+        mVideoContainer.setClipChildren(true);
+
         mVideoView = new TextureView(this);
         mVideoView.setSurfaceTextureListener(mSurfaceTextureListener);
 
-        FrameLayout.LayoutParams childLp = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        childLp.gravity = Gravity.CENTER;
-        float ratio = mVideoWidth * 1f / mVideoHeight;
-        if (ratio >= 1) {
-            childLp.width = containerWidth;
-            childLp.height = (int) (containerWidth * 1f / ratio);
-        } else {
-            childLp.height = containerHeight;
-            childLp.width = (int) (containerHeight * ratio);
-        }
-        mContainer.addView(mVideoView, 0, childLp);
+        FrameLayout.LayoutParams videoViewLp = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT);
+        videoViewLp.gravity = Gravity.CENTER;
+
+        mVideoContainer.addView(mVideoView, 0, videoViewLp);
     }
 
     private void releaseVideo() {
