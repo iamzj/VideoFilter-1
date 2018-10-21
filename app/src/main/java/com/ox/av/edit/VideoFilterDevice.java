@@ -135,6 +135,7 @@ public class VideoFilterDevice {
         }
         mRenderThread = new RenderThread(this, mHasAudio ? mTmpFile : dstVideoFile);
         mDecodeTask = new DecodeTask(srcVideoFile, mFrameCallback, mPlayerFeedback);
+        mDegrees = degrees;
         //mWidth、mHeight表示输出视频的大小
         if (resize) {
             //若要改变输出视频的大小，则使用传入的参数
@@ -145,7 +146,6 @@ public class VideoFilterDevice {
             mWidth = mDecodeTask.mVideoWidth;
             mHeight = mDecodeTask.mVideoHeight;
         }
-        mDegrees = degrees;
         filter.setRotation(Rotation.fromInt(mDegrees));
         mBitRate = bitrate;
         // 部分视频编辑后会模糊，调高比特率

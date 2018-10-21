@@ -400,19 +400,31 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 result[1] = tmp;
                 break;
             case TYPE_4_5:
-                tmp = Math.min(width, height);
-                result[0] = tmp;
-                result[1] = (int) (tmp * 1f / 4f * 5f);
+                if (mVideoDegree == 0 || mVideoDegree == 180) {
+                    result[0] = height;
+                    result[1] = (int) (height * 1f / 4f * 5f);
+                } else if (mVideoDegree == 90 || mVideoDegree == 270){
+                    result[0] = (int) (width * 1f / 4 * 5);
+                    result[1] = width;
+                }
                 break;
             case TYPE_16_9:
-                tmp = Math.max(width, height);
-                result[0] = tmp;
-                result[1] = (int) (tmp * 1f / 16f * 9f);
+                if (mVideoDegree == 0 || mVideoDegree == 180) {
+                    result[0] = (int) (height * 1f / 9 * 16);
+                    result[1] = height;
+                } else if (mVideoDegree == 90 || mVideoDegree == 270){
+                    result[0] = (int) (height * 1f / 16 * 9);
+                    result[1] = height;
+                }
                 break;
             case TYPE_9_16:
-                tmp = Math.min(width, height);
-                result[0] = tmp;
-                result[1] = (int) (tmp * 1f / 9f * 16f);
+                if (mVideoDegree == 0 || mVideoDegree == 180) {
+                    result[0] = width;
+                    result[1] = (int) (width * 1f / 9 * 16);
+                } else if (mVideoDegree == 90 || mVideoDegree == 270){
+                    result[0] = (int) (width * 1f / 9 * 16);
+                    result[1] = width;
+                }
                 break;
         }
         if (result[0] % 2 != 0) {

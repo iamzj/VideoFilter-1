@@ -42,7 +42,7 @@ public class GPUImageScaleFilter extends GPUImageFilter {
 
     private void getResizedVertexCoord() {
         float screenRatio = -1f;
-        float ratio = -1f;
+        float ratio = mVideoWidth * 1f / mVideoHeight;
         switch (mResizeType) {
             case TYPE_1_1:
                 screenRatio = 1f;
@@ -57,8 +57,7 @@ public class GPUImageScaleFilter extends GPUImageFilter {
                 screenRatio = 9f / 16;
                 break;
         }
-        if (mVideoWidth >= mVideoHeight) {
-            ratio = mVideoWidth * 1f / mVideoHeight;
+        if (ratio >= 1) {
             mScaledVertexCoord[0] = -ratio / screenRatio;
             mScaledVertexCoord[1] = -1;
             mScaledVertexCoord[2] = ratio / screenRatio;
@@ -68,15 +67,14 @@ public class GPUImageScaleFilter extends GPUImageFilter {
             mScaledVertexCoord[6] = ratio / screenRatio;
             mScaledVertexCoord[7] = 1;
         } else {
-            ratio = mVideoHeight * 1f / mVideoWidth;
-            mScaledVertexCoord[0] = -ratio;
-            mScaledVertexCoord[1] = -screenRatio;
-            mScaledVertexCoord[2] = ratio;
-            mScaledVertexCoord[3] = -screenRatio;
-            mScaledVertexCoord[4] = -ratio;
-            mScaledVertexCoord[5] = screenRatio;
-            mScaledVertexCoord[6] = ratio;
-            mScaledVertexCoord[7] = screenRatio;
+            mScaledVertexCoord[0] = -screenRatio / ratio;
+            mScaledVertexCoord[1] = -1;
+            mScaledVertexCoord[2] = screenRatio / ratio;
+            mScaledVertexCoord[3] = -1;
+            mScaledVertexCoord[4] = -screenRatio / ratio;
+            mScaledVertexCoord[5] = 1;
+            mScaledVertexCoord[6] = screenRatio / ratio;
+            mScaledVertexCoord[7] = 1;
         }
     }
 
