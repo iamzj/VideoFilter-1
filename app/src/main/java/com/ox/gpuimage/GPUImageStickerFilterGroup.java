@@ -27,11 +27,6 @@ public class GPUImageStickerFilterGroup extends GPUImageFilterGroup {
         mGPUImageStickerFilter.setSrcBitmap(bitmap);
     }
 
-    public void setSizeRatio(float widthRatio, float heightRatio, float xTranslateRatio,
-                             float yTranslateRatio) {
-        mGPUImageStickerFilter.setSizeRatio(widthRatio, heightRatio, xTranslateRatio, yTranslateRatio);
-    }
-
     public void setVertex(float[] vertexRatio) {
         mGPUImageStickerFilter.setVertex(vertexRatio);
     }

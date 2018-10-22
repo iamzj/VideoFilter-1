@@ -321,14 +321,6 @@ public class MainActivity extends Activity implements View.OnClickListener {
         } else if (mVideoDegree == 90) {
             stickerFilterGroup.setRotation(Rotation.ROTATION_90);
             stickerFilterGroup.setVertex(vertexRatio);
-        } else if (mVideoDegree == 180) {
-            stickerFilterGroup.setRotation(Rotation.ROTATION_180);
-            stickerFilterGroup.setSizeRatio(STICKER_WIDTH * 1f / mVideoWidth,
-                    STICKER_HEIGHT * 1f / mVideoHeight, xTranslateRatio, yTranslateRatio);
-        } else if (mVideoDegree == 270) {
-            stickerFilterGroup.setRotation(Rotation.ROTATION_270);
-            stickerFilterGroup.setSizeRatio(STICKER_HEIGHT * 1f / mVideoHeight,
-                    STICKER_WIDTH * 1f / mVideoWidth, yTranslateRatio, xTranslateRatio);
         }
         filterGroup.addFilter(stickerFilterGroup);
         stickerFilterGroup.setImage(img);
