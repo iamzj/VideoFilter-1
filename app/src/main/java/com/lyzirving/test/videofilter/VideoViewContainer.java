@@ -61,16 +61,6 @@ public class VideoViewContainer extends FrameLayout {
         return dealWithSticker(event);
     }
 
-    public float getXTranslateRatio() {
-        float result = 2f * mShiftX / mRenderRect.width();
-        return result;
-    }
-
-    public float getYTranslateRatio() {
-        float result = 2f * mShiftY / mRenderRect.height();
-        return result;
-    }
-
     public float[] calculateStickerSizeRatio(int degree) {
         float[] result = new float[4];
         float left = mStickerRect.left;
@@ -87,6 +77,8 @@ public class VideoViewContainer extends FrameLayout {
                 result[3] = (height / 2f - bottom) / (height / 2f);
                 break;
             case 90:
+            case 180:
+            case 270:
                 result[0] = (top - height / 2f) / (height / 2f);
                 result[2] = (bottom - height / 2f) / (height / 2f);
                 result[1] = (right - width / 2f) / (width / 2f);

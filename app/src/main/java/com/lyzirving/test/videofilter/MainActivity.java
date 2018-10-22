@@ -313,13 +313,17 @@ public class MainActivity extends Activity implements View.OnClickListener {
         GPUImageFilterGroup filterGroup = new GPUImageFilterGroup();
         filterGroup.addFilter(new GPUImageOESFilter());
         GPUImageStickerFilterGroup stickerFilterGroup = new GPUImageStickerFilterGroup(true);
-        float xTranslateRatio = mVideoContainer.getXTranslateRatio();
-        float yTranslateRatio = mVideoContainer.getYTranslateRatio();
         float[] vertexRatio = mVideoContainer.calculateStickerSizeRatio(mVideoDegree);
         if (mVideoDegree == 0) {//旋转是将视频顺时针旋转
             stickerFilterGroup.setVertex(vertexRatio);
         } else if (mVideoDegree == 90) {
             stickerFilterGroup.setRotation(Rotation.ROTATION_90);
+            stickerFilterGroup.setVertex(vertexRatio);
+        } else if (mVideoDegree == 180) {
+            stickerFilterGroup.setRotation(Rotation.ROTATION_180);
+            stickerFilterGroup.setVertex(vertexRatio);
+        } else if (mVideoDegree == 270) {
+            stickerFilterGroup.setRotation(Rotation.ROTATION_270);
             stickerFilterGroup.setVertex(vertexRatio);
         }
         filterGroup.addFilter(stickerFilterGroup);
