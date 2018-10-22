@@ -151,4 +151,13 @@ public class GPUImageStickerFilter extends GPUImageFilter {
         };
     }
 
+    public void setVertex(float[] vertexRatio) {
+        mBitmapVertexCoord = new float[]{
+                vertexRatio[0], vertexRatio[3],
+                vertexRatio[2], vertexRatio[3],
+                vertexRatio[0], vertexRatio[1],
+                vertexRatio[2], vertexRatio[1]
+        };
+    }
+
 }

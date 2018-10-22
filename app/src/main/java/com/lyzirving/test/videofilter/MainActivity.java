@@ -41,8 +41,8 @@ import java.io.IOException;
 
 public class MainActivity extends Activity implements View.OnClickListener {
 
-    private static final int STICKER_WIDTH = DeviceUtils.dip2px(150);
-    private static final int STICKER_HEIGHT = DeviceUtils.dip2px(150);
+    private static final int STICKER_WIDTH = DeviceUtils.dip2px(100);
+    private static final int STICKER_HEIGHT = DeviceUtils.dip2px(100);
 
     private TextureView mVideoView;
     private VideoViewContainer mVideoContainer;
@@ -315,13 +315,12 @@ public class MainActivity extends Activity implements View.OnClickListener {
         GPUImageStickerFilterGroup stickerFilterGroup = new GPUImageStickerFilterGroup(true);
         float xTranslateRatio = mVideoContainer.getXTranslateRatio();
         float yTranslateRatio = mVideoContainer.getYTranslateRatio();
-        if (mVideoDegree == 0) {
-            stickerFilterGroup.setSizeRatio(STICKER_WIDTH * 1f / mVideoWidth,
-                    STICKER_HEIGHT * 1f / mVideoHeight, xTranslateRatio, yTranslateRatio);
+        float[] vertexRatio = mVideoContainer.calculateStickerSizeRatio(mVideoDegree);
+        if (mVideoDegree == 0) {//旋转是将视频顺时针旋转
+            stickerFilterGroup.setVertex(vertexRatio);
         } else if (mVideoDegree == 90) {
             stickerFilterGroup.setRotation(Rotation.ROTATION_90);
-            stickerFilterGroup.setSizeRatio(STICKER_HEIGHT * 1f / mVideoHeight,
-                    STICKER_WIDTH * 1f / mVideoWidth, yTranslateRatio, xTranslateRatio);
+            stickerFilterGroup.setVertex(vertexRatio);
         } else if (mVideoDegree == 180) {
             stickerFilterGroup.setRotation(Rotation.ROTATION_180);
             stickerFilterGroup.setSizeRatio(STICKER_WIDTH * 1f / mVideoWidth,
@@ -442,7 +441,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
     }
 
     private void retrievMetaData() {
-        mVideoPath = Environment.getExternalStorageDirectory() + File.separator + "TestResource" + File.separator + "video_portrait.mp4";
+        mVideoPath = Environment.getExternalStorageDirectory() + File.separator + "TestResource" + File.separator + "video.mp4";
         MediaMetadataRetriever retriver = new MediaMetadataRetriever();
         retriver.setDataSource(mVideoPath);
         String degreesString = retriver.extractMetadata(
@@ -490,6 +489,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
             videoContainerLp.height = containerHeight;
             videoContainerLp.width = (int) (containerHeight * ratio);
         }
+        videoContainerLp.gravity = Gravity.CENTER;
         mVideoContainer.setLayoutParams(videoContainerLp);
         mVideoContainer.setClipChildren(true);
 

@@ -27,6 +27,7 @@ public class VideoViewContainer extends FrameLayout {
     private float mShiftX, mShiftY;
     private float mStickerOriginalLeft, mStickerOriginalTop;
     private int mStickerW, mStickerH;
+    private RectF mStickerRect;
 
     public VideoViewContainer(@NonNull Context context) {
         this(context, null);
@@ -70,6 +71,31 @@ public class VideoViewContainer extends FrameLayout {
         return result;
     }
 
+    public float[] calculateStickerSizeRatio(int degree) {
+        float[] result = new float[4];
+        float left = mStickerRect.left;
+        float right = mStickerRect.right;
+        float top = mStickerRect.top;
+        float bottom = mStickerRect.bottom;
+        float width = mRenderRect.width();
+        float height = mRenderRect.height();
+        switch (degree) {//0为left，1为top，2为right，3为bottom
+            case 0:
+                result[0] = (left - width / 2f) / (width / 2f);
+                result[2] = (right - width / 2f) / (width / 2f);
+                result[1] = (height / 2f - top) / (height / 2f);
+                result[3] = (height / 2f - bottom) / (height / 2f);
+                break;
+            case 90:
+                result[0] = (top - height / 2f) / (height / 2f);
+                result[2] = (bottom - height / 2f) / (height / 2f);
+                result[1] = (right - width / 2f) / (width / 2f);
+                result[3] = (left - width / 2f) / (width / 2f);
+                break;
+        }
+        return result;
+    }
+
     private boolean hasSticker() {
         boolean result = false;
         for (int i = 0; i < getChildCount(); i++) {
@@ -89,6 +115,8 @@ public class VideoViewContainer extends FrameLayout {
             mStickerH = mSticker.getMeasuredHeight();
             mStickerOriginalLeft = mSticker.getLeft();
             mStickerOriginalTop = mSticker.getTop();
+            mStickerRect = new RectF(mStickerOriginalLeft, mStickerOriginalTop,
+                    mStickerOriginalLeft + mStickerW, mStickerOriginalTop + mStickerH);
         }
         boolean result = true;
         switch (e.getAction()) {
@@ -102,6 +130,7 @@ public class VideoViewContainer extends FrameLayout {
                 mStartX = e.getX();
                 mStartY = e.getY();
                 limitTranslation();
+                updateStickerRect();
                 mSticker.setTranslationX(mShiftX);
                 mSticker.setTranslationY(mShiftY);
                 break;
@@ -109,6 +138,11 @@ public class VideoViewContainer extends FrameLayout {
               break;
         }
         return result;
+    }
+
+    private void updateStickerRect() {
+        mStickerRect.set(mStickerOriginalLeft + mShiftX, mStickerOriginalTop + mShiftY,
+                mStickerOriginalLeft + mShiftX + mStickerW, mStickerOriginalTop + mShiftY + mStickerH);
     }
 
     private void limitTranslation() {
