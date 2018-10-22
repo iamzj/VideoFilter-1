@@ -29,6 +29,7 @@ import android.widget.Toast;
 import com.airbnb.lottie.LottieAnimationView;
 import com.lyzirving.test.videofilter.util.DeviceUtils;
 import com.ox.av.edit.VideoFilterDevice;
+import com.ox.gpuimage.GPUDynamicScaleFilter;
 import com.ox.gpuimage.GPUImageFilterGroup;
 import com.ox.gpuimage.GPUImageOESFilter;
 import com.ox.gpuimage.GPUImageScaleFilter;
@@ -55,6 +56,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
     private TextView mBtn916;
     private TextView mBtnSticker;
     private TextView mBtnStickerVideo;
+    private TextView mBtnScale;
     private ImageView mViewSticker;
     private LottieAnimationView mViewAnimation;
 
@@ -236,6 +238,16 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 mViewAnimation.playAnimation();
                 saveVideoWithSticker();
             }
+        } else if (v == mBtnScale) {
+            if (mIsPrepare) {
+                if (mMediaPlayer.isPlaying()) {
+                    mMediaPlayer.pause();
+                    mBtnPlay.setText("play");
+                }
+                mViewAnimation.setVisibility(View.VISIBLE);
+                mViewAnimation.playAnimation();
+                saveVideoWithDynamicScale();
+            }
         }
     }
 
@@ -256,6 +268,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
         mBtn916 = findViewById(R.id.btn_916);
         mBtnSticker = findViewById(R.id.btn_sticker);
         mBtnStickerVideo = findViewById(R.id.btn_sticker_video);
+        mBtnScale = findViewById(R.id.btn_scale);
         mViewSticker = findViewById(R.id.view_sticker);
         mViewAnimation = findViewById(R.id.view_animation);
 
@@ -267,6 +280,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
         mBtn916.setOnClickListener(this);
         mBtnSticker.setOnClickListener(this);
         mBtnStickerVideo.setOnClickListener(this);
+        mBtnScale.setOnClickListener(this);
     }
 
     private void saveVideoWithFilter(String inputPath, String outputPath, GPUImageFilterGroup filterGroup,
@@ -306,6 +320,18 @@ public class MainActivity extends Activity implements View.OnClickListener {
             mViewAnimation.setVisibility(View.GONE);
             Toast.makeText(this, "error occurs", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void saveVideoWithDynamicScale() {
+        GPUImageFilterGroup filterGroup = new GPUImageFilterGroup();
+        filterGroup.addFilter(new GPUImageOESFilter());
+        GPUDynamicScaleFilter dynamicScaleFilter = new GPUDynamicScaleFilter();
+        dynamicScaleFilter.setScaleInfo(30, 1, 4, 2f);
+        filterGroup.addFilter(dynamicScaleFilter);
+        boolean resize = false;
+        String outputPath = Environment.getExternalStorageDirectory() + File.separator + "TestResource" + File.separator + "video_scale.mp4";
+        saveVideoWithFilter(mVideoPath, outputPath, filterGroup, mVideoWidth, mVideoHeight, mVideoDegree,
+                mBitRate, mLocation, resize);
     }
 
     private void saveVideoWithSticker() {

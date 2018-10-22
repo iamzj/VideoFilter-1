@@ -180,4 +180,27 @@
 
     </LinearLayout>
 
+    <LinearLayout
+        android:id="@+id/btns_row4"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/btns_row3"
+        android:layout_below="@id/btns_row3"
+        android:layout_marginTop="10dp">
+
+        <TextView
+            android:id="@+id/btn_scale"
+            android:text="scale"
+            android:textSize="13sp"
+            android:gravity="center"
+            android:textColor="#ffffff"
+            android:background="@drawable/tv_bg"
+            android:paddingBottom="2dp"
+            android:paddingTop="2dp"
+            android:layout_width="@dimen/text_width"
+            android:layout_height="@dimen/text_height"/>
+
+    </LinearLayout>
+
 </RelativeLayout>
