@@ -329,6 +329,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
         enlargeFilter.setScaleInfo(30, 1, 2, 2f);
         filterGroup.addFilter(enlargeFilter);
         GPUDynamicScaleFilter shrinkFilter = new GPUDynamicScaleFilter();
+        shrinkFilter.setLastRatio(enlargeFilter.getDstRatio());
         shrinkFilter.setScaleInfo(30, 3, 2, 0.5f);
         filterGroup.addFilter(shrinkFilter);
         boolean resize = false;

@@ -1,12 +1,15 @@
 package com.ox.gpuimage;
 
 import android.opengl.GLES20;
+import android.util.Log;
 
 import com.ox.gpuimage.util.TextureRotationUtil;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
+
+import static com.ox.gpuimage.GPUImageRenderer.CUBE;
 
 /**
  * @author lyzirving
@@ -16,10 +19,9 @@ import java.nio.FloatBuffer;
  */
 
 public class GPUDynamicScaleFilter extends GPUImageFilter {
-    private static final float INVALID_RATIO = -1;
-
-    private FloatBuffer mScaledTextureBuffer;
-    private float[] mScaleTextureCoord;
+    public static final float NONE_RATIO = 1;
+    private FloatBuffer mScaledVertexBuffer;
+    private float[] mScaledVetex;
     private int mTimeCount;
 
     private int mFrameRate;
@@ -27,11 +29,11 @@ public class GPUDynamicScaleFilter extends GPUImageFilter {
     private int mStartTime;
     //变化持续的时间，单位秒
     private int mDuration;
-    private float mRatio;
+    private float mDstRatio;
+    private float mLastRatio = NONE_RATIO;
+    private float mCurRatio = NONE_RATIO;
     private float mDRatio;
     private boolean mIsEnlarge;
-
-    private boolean mIsRecover;
 
     public GPUDynamicScaleFilter() {
         super();
@@ -40,58 +42,68 @@ public class GPUDynamicScaleFilter extends GPUImageFilter {
     @Override
     public void onInitialized() {
         super.onInitialized();
-        float[] flipTexture = TextureRotationUtil.getRotation(Rotation.NORMAL, false, true);
-        mScaledTextureBuffer = ByteBuffer.allocateDirect(flipTexture.length * 4)
+        mScaledVetex = new float[8];
+        mScaledVertexBuffer = ByteBuffer.allocateDirect(CUBE.length * 4)
                 .order(ByteOrder.nativeOrder())
                 .asFloatBuffer();
-        mScaledTextureBuffer.put(flipTexture).position(0);
+        mScaledVertexBuffer.put(CUBE).position(0);
     }
 
     @Override
     protected void onDrawArraysPre() {
         super.onDrawArraysPre();
-        updateScaleTextureCoord();
+        updateScaleVertex();
         mTimeCount++;
-        mScaledTextureBuffer.position(0);
-        GLES20.glVertexAttribPointer(mGLAttribTextureCoordinate, 2, GLES20.GL_FLOAT, false, 0,
-                mScaledTextureBuffer);
-        GLES20.glEnableVertexAttribArray(mGLAttribTextureCoordinate);
+        mScaledVertexBuffer.position(0);
+        GLES20.glVertexAttribPointer(mGLAttribPosition, 2, GLES20.GL_FLOAT, false, 0, mScaledVertexBuffer);
+        GLES20.glEnableVertexAttribArray(mGLAttribPosition);
     }
 
-    private void updateScaleTextureCoord() {
+    private void updateScaleVertex() {
         if (mTimeCount >= mStartTime * mFrameRate && mTimeCount <= (mStartTime + mDuration) * mFrameRate) {
-            float curRatio = mIsEnlarge ? 1 + (mTimeCount - mStartTime * mFrameRate) * mDRatio :
-                    1 - (mTimeCount - mStartTime * mFrameRate) * mDRatio;
-            if (mIsEnlarge && curRatio > mRatio) {
-                curRatio = mRatio;
-            } else if (!mIsEnlarge && curRatio < mRatio) {
-                curRatio = mRatio;
+            mCurRatio = mIsEnlarge ? mLastRatio + (mTimeCount - mStartTime * mFrameRate) * mDRatio :
+                    mLastRatio - (mTimeCount - mStartTime * mFrameRate) * mDRatio;
+            if (mIsEnlarge && mCurRatio > mDstRatio) {
+                mCurRatio = mDstRatio;
+            } else if (!mIsEnlarge && mCurRatio < mDstRatio) {
+                mCurRatio = mDstRatio;
             }
-            float[] texture = new float[8];
-            texture[0] = (1 - 1 / curRatio) / 2;
-            texture[1] = (1 - 1 / curRatio) / 2 + 1 / curRatio;
-            texture[2] = 1 - (1 - 1 / curRatio) / 2;
-            texture[3] = (1 - 1 / curRatio) / 2 + 1 / curRatio;
-            texture[4] = (1 - 1 / curRatio) / 2;
-            texture[5] = (1 - 1 / curRatio) / 2;
-            texture[6] = 1 - (1 - 1 / curRatio) / 2;
-            texture[7] = (1 - 1 / curRatio) / 2;
-            mScaleTextureCoord = TextureRotationUtil.flipVerticle(texture);
-            mScaledTextureBuffer.put(mScaleTextureCoord);
+            float[] scaleVertex = new float[8];
+            scaleVertex[0] = -mCurRatio;
+            scaleVertex[1] = -mCurRatio;
+            scaleVertex[2] = mCurRatio;
+            scaleVertex[3] = -mCurRatio;
+            scaleVertex[4] = -mCurRatio;
+            scaleVertex[5] = mCurRatio;
+            scaleVertex[6] = mCurRatio;
+            scaleVertex[7] = mCurRatio;
+            mScaledVertexBuffer.put(scaleVertex);
+            Log.d("test", "current ratio = " + mCurRatio + " ,dst ratio = " + mDstRatio + " ,last ratio = " + mLastRatio);
         }
+
     }
 
     public void setScaleInfo(int frameRate, int startTime, int duration, float ratio) {
         mFrameRate = frameRate;
         mStartTime = startTime;
         mDuration = duration;
-        mRatio = ratio;
-        if (mRatio > 1) {
+        mDstRatio = mLastRatio * ratio;
+        if (mDstRatio - mLastRatio > 0) {
             mIsEnlarge = true;
-            mDRatio = (mRatio - 1) * 1f / (mDuration * mFrameRate);
-        } else {
-            mDRatio =  (1 - mRatio) * 1f / (mDuration * mFrameRate);
+            mDRatio = (mDstRatio - mLastRatio) * 1f / (mDuration * mFrameRate);
+        } else if (mDstRatio - mLastRatio < 0){
+            mDRatio =  (mLastRatio - mDstRatio) * 1f / (mDuration * mFrameRate);
+        } else if (mDstRatio == mLastRatio) {
+
         }
+    }
+
+    public void setLastRatio(float lastRatio) {
+        mLastRatio = lastRatio;
+    }
+
+    public float getDstRatio() {
+        return mDstRatio;
     }
 
 }
